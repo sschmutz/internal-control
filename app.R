@@ -3,26 +3,31 @@ library(tidyverse)
 library(ggforce)
 library(tibble)
 library(patchwork)
+library(shinyWidgets)
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
-    titlePanel("Internal control"),
-    
+  
     sidebarLayout(
-        sidebarPanel(width = 2,
-               sliderInput("prob_background", "background", 
-                           min = 0, max = 1, value = 0.9, 
-                           step = 0.05, round = -2),
+        sidebarPanel(h2("internal control"),
+                     p("Select the amount of",
+                       span("background", style = "color:#999999"),
+                       "or",
+                       span("internal control", style = "color:#56B4E9"),
+                       "points (DNA fragments) that should be displayed."),
+                     p("See how the different ratios affect the internal control reads per 1000 reads (rpk)."),
+                     em("Note: the sequence numbers don't have a specific meaning, it's also rpk instead of rpm."),
+                        width = 2,
+                     p(),
+                     chooseSliderSkin("Flat"),
+                     setSliderColor(c("#999999", "#56B4E9"), c(1, 2)),
+               sliderInput("background_n", "background", 
+                           min = 10, max = 200, value = 80, 
+                           step = 10, round = 0),
                br(),
-               sliderInput("prob_internal_control", "internal control", 
-                           min = 0, max = 1, value = 0.1, 
-                           step = 0.05, round = -2),
-               br(),
-               hr(),
-               br(),
-               sliderInput("sequences_n", "sequencing reads", 
-                           min = 0, max = 500, value = 80, 
-                           step = 10, round = 0)
+               sliderInput("internal_control_n", "internal control", 
+                           min = 5, max = 50, value = 5, 
+                           step = 5, round = 0)
         ),
         mainPanel(
             plotOutput("plot", width = "100%", height = "500px")
@@ -37,10 +42,10 @@ server <- function(input, output) {
     output$plot <- renderPlot({
         
         set.seed(seed = 42)
-        
-        sequences_n <- input$sequences_n
-        prob_background <- input$prob_background
-        prob_internal_control <- input$prob_internal_control
+      
+        background_n <- input$background_n
+        internal_control_n <- input$internal_control_n
+        sequences_n <- background_n + internal_control_n
         
         # define parameters of circle
         radius_circle <- 80
@@ -49,17 +54,18 @@ server <- function(input, output) {
         
         # sample coordinates and amount of background/internal_control sequences
         x_coordinate <-
-            sample(1:200, sequences_n, replace = TRUE)
+            runif(n = sequences_n, min = 1, max = 200)
         
         y_coordinate <-
-            sample(1:200, sequences_n, replace = TRUE)
+            runif(n = sequences_n, min = 1, max = 200)
         
-        type <-
-            sample(c("background", "internal_control"), sequences_n, replace = TRUE, prob = c(prob_background, prob_internal_control))
+        internal_control_row <-
+            sample(1:sequences_n, internal_control_n, replace = FALSE)
         
         # put everything in a tibble
         coordinates <-
-            tibble(x_coordinate, y_coordinate, type) %>%
+            tibble(x_coordinate, y_coordinate) %>%
+            mutate(type = if_else(row_number() %in% internal_control_row, "internal_control", "background")) %>%
             mutate(within_circle = if_else((x_coordinate - center_x)^2 + (y_coordinate - center_y)^2 <= radius_circle^2, TRUE, FALSE))
         
         plot_sequencing_pool <-
@@ -70,9 +76,20 @@ server <- function(input, output) {
             scale_alpha_manual(values = c(0.2, 0.8)) +
             geom_circle(aes(x0 = center_x, y0 = center_y, r = radius_circle), inherit.aes = FALSE, colour = "grey") +
             labs(colour = "", caption = "points within ring represent sequenced DNA") +
-            guides(alpha = FALSE) +
+            guides(colour = FALSE, alpha = FALSE) +
             theme_void() +
             theme(legend.position = "left", text = element_text(size = 20))
+        
+        internal_control_circle <-
+            coordinates %>%
+            filter(within_circle == TRUE) %>%
+            filter(type == "internal_control") %>%
+            nrow()
+        
+        total_circle <-
+          coordinates %>%
+          filter(within_circle == TRUE) %>%
+          nrow()
         
         sequencing_count <-
             coordinates %>%
@@ -80,7 +97,7 @@ server <- function(input, output) {
             ggplot(aes(x = type)) +
             geom_bar(aes(fill = type)) +
             scale_fill_manual(values = c("#999999", "#56B4E9")) +
-            labs(x = "", y = "sequence count \n") +
+            labs(x = "", y = "sequence count \n", caption = paste("rpk =", round(internal_control_circle / total_circle * 1000))) +
             guides(fill = FALSE) +
             theme_minimal() +
             theme(text = element_text(size = 20))
