@@ -26,11 +26,14 @@ ui <- fluidPage(
                            step = 10, round = 0),
                br(),
                sliderInput("internal_control_n", "internal control", 
-                           min = 5, max = 50, value = 5, 
+                           min = 5, max = 50, value = 10, 
                            step = 5, round = 0)
         ),
         mainPanel(
-            plotOutput("plot", width = "100%", height = "500px")
+          tabsetPanel(type = "tabs",
+                      tabPanel("Plots", plotOutput("plot", width = "100%", height = "600px")),
+                      tabPanel("Documentation", verbatimTextOutput("documentation"))
+          )
         )
     )
 )
