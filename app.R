@@ -9,8 +9,8 @@ library(shinyWidgets)
 ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
-      h2("Metagenomic sequencing"),
-      h3("internal control"),
+      h3("Metagenomic sequencing"),
+      h4("internal control"),
       p("Select the amount of",
         strong(span("background", style = "color:#999999")),
         "or",
@@ -38,12 +38,21 @@ ui <- fluidPage(
                            "Using an internal control (IC) for metagenomic sequencing
                            could lead to a better monitoring of wet lab performance.",
                            br(),
+                           "Compared to other methods using internal controls, the
+                           amount of internal control detected in metagenomic sequencing
+                           is also affected by the amount of total DNA present in the
+                           sample (here called background DNA).",
+                           br(),
                            "Goal of this app is to show how the sequenced
                            reads of the IC are dependant not only
                            of the amount spiked in but also the amount of background
                            DNA.",
                            h4("How does it work"),
-                           "The amount of background and internal control DNA fragments
+                           "The amount of",
+                           strong(span("background", style = "color:#999999")),
+                           "and",
+                           strong(span("internal control", style = "color:#56B4E9")),
+                           "DNA fragments
                            can be chosen in the sidebar panel.",
                            br(),
                            "Those numbers represent the total points per category
@@ -118,10 +127,11 @@ server <- function(input, output) {
       scale_fill_manual(values = c("#999999", "#56B4E9")) +
       scale_y_continuous(limits = c(0, 100)) +
       scale_x_discrete(labels = c("background", "internal control")) +
-      labs(x = "", y = "sequence count \n", caption = paste("rpk =", round(internal_control_circle / total_circle * 1000))) +
+      labs(x = "", y = "sequence count [-]", caption = paste("rpk =", round(internal_control_circle / total_circle * 1000))) +
       guides(fill = FALSE) +
       theme_minimal() +
-      theme(text = element_text(size = 20))
+      theme(text = element_text(size = 20),
+            axis.text.x = element_text(colour = c("#999999", "#56B4E9")))
     
     plot_sequencing_pool + sequencing_count + plot_layout(ncol = 2)
     
