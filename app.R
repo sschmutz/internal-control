@@ -108,8 +108,7 @@ server <- function(input, output) {
       geom_circle(aes(x0 = center_x, y0 = center_y, r = radius_circle), inherit.aes = FALSE, colour = "grey") +
       labs(colour = "", caption = "points within ring represent sequenced DNA") +
       guides(colour = FALSE, alpha = FALSE) +
-      theme_void() +
-      theme(legend.position = "left", text = element_text(size = 20))
+      theme_void()
     
     internal_control_circle <-
       coordinates %>%
@@ -133,8 +132,7 @@ server <- function(input, output) {
       labs(x = "", y = "sequence count [-]", caption = paste("rpk =", round(internal_control_circle / total_circle * 1000))) +
       guides(fill = FALSE) +
       theme_minimal() +
-      theme(text = element_text(size = 20),
-            axis.text.x = element_text(colour = c("#999999", "#56B4E9")))
+      theme(axis.text.x = element_text(colour = c("#999999", "#56B4E9")))
     
     plot_sequencing_pool + sequencing_count + plot_layout(ncol = 2)
     
