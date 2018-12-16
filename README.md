@@ -6,9 +6,9 @@ Goal of this app is to show how the sequenced reads of the IC are dependant not 
 #### How does it work
 The amount of background and internal control DNA fragments can be chosen in the sidebar panel.  
 
-![ic_sidebar](images/ic_sidebar.png)
+![ic_sidebar](images/ic_sidebar.jpg)
 
 Those numbers represent the total points per category in the plot. Of those only a (random) subset are sequenced (points within ring).  
 The bar plot shows how many DNA fragments of each category are sequenced.  
 
-![ic_plot](images/ic_plot.png)
+![ic_plot](images/ic_plot.jpg)
