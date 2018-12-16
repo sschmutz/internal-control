@@ -32,7 +32,7 @@ ui <- fluidPage(
       ),
     mainPanel(
       tabsetPanel(type = "tabs",
-                  tabPanel("Plot", plotOutput("plot", width = "100%", height = "600px")),
+                  tabPanel("Plot", plotOutput("plot", width = "100%", height = "1000px")),
                   tabPanel("Documentation",
                            p(),
                            "Using an internal control (IC) for metagenomic sequencing
@@ -123,7 +123,7 @@ server <- function(input, output) {
       theme_minimal() +
       theme(text = element_text(size = 20))
     
-    plot_sequencing_pool + sequencing_count + plot_layout(ncol = 2)
+    plot_sequencing_pool + sequencing_count + plot_layout(ncol = 1)
   })
   }
 
