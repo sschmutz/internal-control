@@ -9,7 +9,8 @@ library(shinyWidgets)
 ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
-      h2("internal control"),
+      h2("Metagenomic sequencing"),
+      h3("internal control"),
       p("Select the amount of",
         strong(span("background", style = "color:#999999")),
         "or",
@@ -72,37 +73,37 @@ server <- function(input, output) {
     
     # sample coordinates and amount of background/internal_control sequences
     x_coordinate <-
-        runif(n = sequences_n, min = 1, max = 200)
+      runif(n = sequences_n, min = 1, max = 200)
     
     y_coordinate <-
-        runif(n = sequences_n, min = 1, max = 200)
+      runif(n = sequences_n, min = 1, max = 200)
     
     internal_control_row <-
-        sample(1:sequences_n, internal_control_n, replace = FALSE)
+      sample(1:sequences_n, internal_control_n, replace = FALSE)
     
     # put everything in a tibble
     coordinates <-
-        tibble(x_coordinate, y_coordinate) %>%
-        mutate(type = if_else(row_number() %in% internal_control_row, "internal_control", "background")) %>%
-        mutate(within_circle = if_else((x_coordinate - center_x)^2 + (y_coordinate - center_y)^2 <= radius_circle^2, TRUE, FALSE))
+      tibble(x_coordinate, y_coordinate) %>%
+      mutate(type = if_else(row_number() %in% internal_control_row, "internal_control", "background")) %>%
+      mutate(within_circle = if_else((x_coordinate - center_x)^2 + (y_coordinate - center_y)^2 <= radius_circle^2, TRUE, FALSE))
     
     plot_sequencing_pool <-
-        coordinates %>%
-        ggplot(aes(x = x_coordinate, y = y_coordinate)) +
-        geom_point(aes(colour = type, alpha = within_circle), size = 5) +
-        scale_colour_manual(values = c("#999999", "#56B4E9")) +
-        scale_alpha_manual(values = c(0.2, 0.8)) +
-        geom_circle(aes(x0 = center_x, y0 = center_y, r = radius_circle), inherit.aes = FALSE, colour = "grey") +
-        labs(colour = "", caption = "points within ring represent sequenced DNA") +
-        guides(colour = FALSE, alpha = FALSE) +
-        theme_void() +
-        theme(legend.position = "left", text = element_text(size = 20))
+      coordinates %>%
+      ggplot(aes(x = x_coordinate, y = y_coordinate)) +
+      geom_point(aes(colour = type, alpha = within_circle), size = 5) +
+      scale_colour_manual(values = c("#999999", "#56B4E9")) +
+      scale_alpha_manual(values = c(0.2, 0.8)) +
+      geom_circle(aes(x0 = center_x, y0 = center_y, r = radius_circle), inherit.aes = FALSE, colour = "grey") +
+      labs(colour = "", caption = "points within ring represent sequenced DNA") +
+      guides(colour = FALSE, alpha = FALSE) +
+      theme_void() +
+      theme(legend.position = "left", text = element_text(size = 20))
     
     internal_control_circle <-
-        coordinates %>%
-        filter(within_circle == TRUE) %>%
-        filter(type == "internal_control") %>%
-        nrow()
+      coordinates %>%
+      filter(within_circle == TRUE) %>%
+      filter(type == "internal_control") %>%
+      nrow()
     
     total_circle <-
       coordinates %>%
@@ -110,15 +111,17 @@ server <- function(input, output) {
       nrow()
     
     sequencing_count <-
-        coordinates %>%
-        filter(within_circle == TRUE) %>%
-        ggplot(aes(x = type)) +
-        geom_bar(aes(fill = type)) +
-        scale_fill_manual(values = c("#999999", "#56B4E9")) +
-        labs(x = "", y = "sequence count \n", caption = paste("rpk =", round(internal_control_circle / total_circle * 1000))) +
-        guides(fill = FALSE) +
-        theme_minimal() +
-        theme(text = element_text(size = 20))
+      coordinates %>%
+      filter(within_circle == TRUE) %>%
+      ggplot(aes(x = type)) +
+      geom_bar(aes(fill = type)) +
+      scale_fill_manual(values = c("#999999", "#56B4E9")) +
+      scale_y_continuous(limits = c(0, 100)) +
+      scale_x_discrete(labels = c("background", "internal control")) +
+      labs(x = "", y = "sequence count \n", caption = paste("rpk =", round(internal_control_circle / total_circle * 1000))) +
+      guides(fill = FALSE) +
+      theme_minimal() +
+      theme(text = element_text(size = 20))
     
     plot_sequencing_pool + sequencing_count + plot_layout(ncol = 2)
   })
