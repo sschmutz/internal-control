@@ -60,7 +60,10 @@ ui <- fluidPage(
                            sequenced (points within ring).",
                            br(),
                            "The bar plot shows how many DNA fragments of each
-                           category are sequenced.")
+                           category are sequenced.",
+                           p(),
+                           a(href ="https://github.com/sschmutz/internal-control",
+                           "Visit the GitHub repository for the code"))
                   )
       )
     )
