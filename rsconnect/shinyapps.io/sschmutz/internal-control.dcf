@@ -5,6 +5,6 @@ account: sschmutz
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 618048
-bundleId: 1766821
+bundleId: 1766869
 url: https://sschmutz.shinyapps.io/internal-control/
-when: 1544980215.23961
+when: 1544982444.0282
